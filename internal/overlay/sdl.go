@@ -1,8 +1,6 @@
 package overlay
 
 import (
-	"fmt"
-
 	"github.com/Zyko0/go-sdl3/bin/binimg"
 	"github.com/Zyko0/go-sdl3/bin/binsdl"
 	"github.com/Zyko0/go-sdl3/img"
@@ -35,6 +33,8 @@ func (s SDLOverlay) Load(imagePath string) error {
 	}
 
 	defer sdl.Quit()
+
+	dragging := false
 
 	window, renderer, err := sdl.CreateWindowAndRenderer(
 		windowName,
@@ -70,6 +70,18 @@ func (s SDLOverlay) Load(imagePath string) error {
 	ox := float32(0)
 	oy := float32(0)
 
+	handCursor, err := sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_MOVE)
+	if err != nil {
+		return err
+	}
+
+	defer handCursor.Destroy()
+
+	defaultCursor, err := sdl.GetDefaultCursor()
+	if err != nil {
+		return err
+	}
+
 	for running {
 		w, h, err := renderer.CurrentOutputSize()
 		if err != nil {
@@ -86,6 +98,30 @@ func (s SDLOverlay) Load(imagePath string) error {
 			case sdl.EVENT_KEY_DOWN:
 				if event.KeyboardEvent().Key == sdl.K_ESCAPE {
 					running = false
+				}
+
+			case sdl.EVENT_MOUSE_BUTTON_DOWN:
+				ev := event.MouseButtonEvent()
+				if ev.Button == uint8(sdl.BUTTON_LEFT) {
+					dragging = true
+					sdl.SetCursor(handCursor)
+				}
+
+			case sdl.EVENT_MOUSE_BUTTON_UP:
+				ev := event.MouseButtonEvent()
+				if ev.Button == uint8(sdl.BUTTON_LEFT) {
+					dragging = false
+					sdl.SetCursor(defaultCursor)
+				}
+
+			case sdl.EVENT_MOUSE_MOTION:
+				ev := event.MouseMotionEvent()
+				if dragging {
+					ox += ev.Xrel
+					oy += ev.Yrel
+
+					ox = min(max(ox, float32(w)*(1-zoom)), 0)
+					oy = min(max(oy, float32(h)*(1-zoom)), 0)
 				}
 
 			case sdl.EVENT_MOUSE_WHEEL:
