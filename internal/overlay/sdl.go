@@ -94,11 +94,13 @@ func (s SDLOverlay) Load(imagePath string) error {
 				previous := zoom
 				zoom += ev.Y * zoomStep
 				zoom = max(1, zoom)
-				fmt.Println(zoom)
 
 				k := zoom / previous
 				ox = ev.MouseX - (ev.MouseX-ox)*k
 				oy = ev.MouseY - (ev.MouseY-oy)*k
+
+				ox = min(max(ox, float32(w)*(1-zoom)), 0)
+				oy = min(max(oy, float32(h)*(1-zoom)), 0)
 			}
 		}
 
