@@ -96,7 +96,8 @@ func (s SDLOverlay) Load(imagePath string) error {
 				running = false
 
 			case sdl.EVENT_KEY_DOWN:
-				if event.KeyboardEvent().Key == sdl.K_ESCAPE {
+				key := event.KeyboardEvent().Key
+				if key == sdl.K_ESCAPE  || key == sdl.K_Q {
 					running = false
 				}
 
