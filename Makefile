@@ -1,10 +1,10 @@
 all: build
 
 build:
-	go build ./...
+	go build -o woom ./cmd
 
-run:
-	go run ./...
+run: build
+	./woom
 
 clean:
 	rm ./woom

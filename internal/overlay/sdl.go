@@ -40,18 +40,15 @@ func (s SDLOverlay) Load(imagePath string) error {
 		windowName,
 		windowWidth,
 		windowHeight,
-		sdl.WINDOW_BORDERLESS,
+		sdl.WINDOW_FULLSCREEN,
 	)
+
 	if err != nil {
 		return err
 	}
 
 	defer window.Destroy()
 	defer renderer.Destroy()
-
-	if err := window.SetFullscreen(true); err != nil {
-		return err
-	}
 
 	texture, err := img.LoadTexture(
 		renderer,
