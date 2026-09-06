@@ -1,42 +1,14 @@
 package main
 
 import (
-	"context"
 	"log"
-	"strings"
 
-	"github.com/pvskp/woom/internal/overlay"
-	"github.com/pvskp/woom/internal/portal"
+	"github.com/pvskp/woom/cmd/commands"
 )
 
 func main() {
-	client, err := portal.New()
-
+	err := commands.Execute()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer client.Close()
-
-	ctx := context.Background()
-
-	opts := portal.ScreenshotOptions{
-		Mode:      portal.ScreenshotModeFull,
-		Selection: portal.Coordinate{},
-	}
-
-	uri, err := client.Screenshot(ctx, opts)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	overlay := overlay.New()
-
-	err = overlay.Load(strings.TrimPrefix(uri, "file://"))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 }

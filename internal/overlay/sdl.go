@@ -8,17 +8,42 @@ import (
 )
 
 const (
-	windowName   = "woom"
+	defaultWindowName   = "woom"
+	defaultZoomStep = 0.5
+
 	windowWidth  = 1280
 	windowHeight = 720
 
-	zoomStep = 0.1
 )
 
-type SDLOverlay struct{}
+type SDLOverlay struct {
+	windowName string
+	zoomStep   float32
+}
 
-func New() SDLOverlay {
-	return SDLOverlay{}
+func New(options ...func(*SDLOverlay)) *SDLOverlay {
+	ov := &SDLOverlay{
+		windowName: defaultWindowName,
+		zoomStep:   defaultZoomStep,
+	}
+
+	for _, opt := range options {
+		opt(ov)
+	}
+
+	return ov
+}
+
+func WithWindowName(name string) func(*SDLOverlay) {
+	return func(s *SDLOverlay)  {
+		s.windowName = name
+	}
+}
+
+func WithZoomStep(step float32) func(*SDLOverlay) {
+	return func(s *SDLOverlay)  {
+		s.zoomStep = step
+	}
 }
 
 func (s SDLOverlay) Load(imagePath string) error {
@@ -37,7 +62,7 @@ func (s SDLOverlay) Load(imagePath string) error {
 	dragging := false
 
 	window, renderer, err := sdl.CreateWindowAndRenderer(
-		windowName,
+		defaultWindowName,
 		windowWidth,
 		windowHeight,
 		sdl.WINDOW_FULLSCREEN,
@@ -94,7 +119,7 @@ func (s SDLOverlay) Load(imagePath string) error {
 
 			case sdl.EVENT_KEY_DOWN:
 				key := event.KeyboardEvent().Key
-				if key == sdl.K_ESCAPE  || key == sdl.K_Q {
+				if key == sdl.K_ESCAPE || key == sdl.K_Q {
 					running = false
 				}
 
@@ -126,7 +151,7 @@ func (s SDLOverlay) Load(imagePath string) error {
 				ev := event.MouseWheelEvent()
 
 				previous := zoom
-				zoom += ev.Y * zoomStep
+				zoom += ev.Y * s.zoomStep
 				zoom = max(1, zoom)
 
 				k := zoom / previous
